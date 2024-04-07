@@ -10,10 +10,10 @@ class ApplyRefMotionNode:
     @classmethod
     def INPUT_TYPES(s):
 
-        return {"required": { 
+        return {"required": {
             "model": ("MODEL",),
             "ref_latents": ("LATENT",),
-            "enabled": ("BOOLEAN", {"default": True }),
+            "enabled": ("BOOLEAN", {"default": True}),
             "positive": ("CONDITIONING",),
             "negative": ("CONDITIONING",),
             "start_percent": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.01, "round": 0.01}),
@@ -25,30 +25,32 @@ class ApplyRefMotionNode:
 
     CATEGORY = "reference"
 
-    def apply(self, 
-              model, 
-              ref_latents, 
+    def apply(self,
+              model,
+              ref_latents,
               enabled,
-              positive, 
+              positive,
               negative,
               start_percent,
               end_percent,
               ref_settings):
         if not enabled:
             return (model, )
-        
+
         model = model.clone()
-        transformer_options = model.model_options.get('transformer_options', {})
+        transformer_options = model.model_options.get(
+            'transformer_options', {})
         model.model_options['transformer_options'] = transformer_options
 
         ref_latents = prepare_ref_latents(model, ref_latents)
         sampling = model.model.model_sampling
 
-        prompt = torch.cat([negative[0][0]]* 16 +[positive[0][0]]* 16)
+        # prompt = torch.cat([negative[0][0]]* 16 +[positive[0][0]]* 16)
 
         ref_config = RefConfig(
             ref_latents,
-            prompt,
+            positive[0][0],
+            negative[0][0],
             sampling,
             start_percent,
             end_percent,

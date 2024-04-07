@@ -10,8 +10,8 @@ class RefSetting:
     v_mode = False
     normal_mode = False
 
-    def __init__(self, 
-                 input_attentions, 
+    def __init__(self,
+                 input_attentions,
                  output_attentions,
                  q_mode,
                  k_mode,
@@ -27,16 +27,18 @@ class RefSetting:
 
 class RefConfig:
     settings = []
-    
-    def __init__(self, 
+
+    def __init__(self,
                  ref_latents,
-                 prompt,
+                 positive,
+                 negative,
                  sampling,
                  start_percent,
                  end_percent,
                  settings: List[RefSetting]):
         self.ref_latents = ref_latents
-        self.prompt = prompt
+        self.positive = positive
+        self.negative = negative
         self.sampling = sampling
         self.start_percent = start_percent
         self.end_percent = end_percent
