@@ -1,9 +1,24 @@
 import torch
 
-from comfy.ldm.modules.attention import optimized_attention
+from comfy.ldm.modules.attention import attention_basic, attention_pytorch, attention_split, attention_sub_quad
+from comfy import model_management
+from comfy.cli_args import args
 
 from ..reference.ref_mode import RefMode
 from ..utils.module_utils import is_named_module_transformer_block
+
+
+# From ADE
+# until xformers bug is fixed, do not use xformers for VersatileAttention! TODO: change this when fix is out
+# logic for choosing optimized_attention method taken from comfy/ldm/modules/attention.py
+optimized_attention_mm = attention_basic
+if model_management.pytorch_attention_enabled():
+    optimized_attention_mm = attention_pytorch
+else:
+    if args.use_split_cross_attention:
+        optimized_attention_mm = attention_split
+    else:
+        optimized_attention_mm = attention_sub_quad
 
 
 def get_attention_wrapper(cls):
@@ -63,25 +78,27 @@ def get_attention_wrapper(cls):
                     self.k_bank = k
                 if self.v_mode:
                     self.v_bank = v
-            
+
             if self.scale is not None:
                 k *= self.scale
             # apply scale mask, if present
             if scale_mask is not None:
                 k *= scale_mask
-            
-            out = optimized_attention(q, k, v, self.heads, mask)
+
+            out = optimized_attention_mm(q, k, v, self.heads, mask)
             return self.to_out(out)
-    
+
     # HACK: This is for experiment reasons only
     cls.__bases__ = (TemporalAttentionWrapper,)
-    
+
     return cls
 
 
 def wrap_temporal_attentions(model):
-    input_modules = list(filter(is_named_module_transformer_block, model.input_blocks.named_modules()))
-    output_modules = list(filter(is_named_module_transformer_block, model.output_blocks.named_modules()))
+    input_modules = list(
+        filter(is_named_module_transformer_block, model.input_blocks.named_modules()))
+    output_modules = list(
+        filter(is_named_module_transformer_block, model.output_blocks.named_modules()))
 
     for _, module in input_modules + output_modules:
         for i in range(len(module.attention_blocks)):
