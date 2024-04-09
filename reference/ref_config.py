@@ -9,6 +9,7 @@ class RefSetting:
     k_mode = False
     v_mode = False
     normal_mode = False
+    normal_fidelity = 0
 
     def __init__(self,
                  input_attentions,
@@ -16,13 +17,15 @@ class RefSetting:
                  q_mode,
                  k_mode,
                  v_mode,
-                 normal_mode) -> None:
+                 normal_mode,
+                 normal_fidelity) -> None:
         self.input_attentions = input_attentions
         self.output_attentions = output_attentions
         self.q_mode = q_mode
         self.k_mode = k_mode
         self.v_mode = v_mode
         self.normal_mode = normal_mode
+        self.normal_fidelity = normal_fidelity
 
 
 class RefConfig:

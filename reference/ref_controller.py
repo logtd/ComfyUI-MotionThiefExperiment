@@ -9,10 +9,24 @@ class RefController:
     def __init__(self, diffusion_model):
         self.model = diffusion_model
 
+    def sef_ref_count(self, ref_count):
+        model = self.model
+        input_modules = list(
+            filter(is_named_module_transformer_block, model.input_blocks.named_modules()))
+        output_modules = list(
+            filter(is_named_module_transformer_block, model.output_blocks.named_modules()))
+
+        for _, module in input_modules + output_modules:
+            for i in range(len(module.attention_blocks)):
+                attn = module.attention_blocks[i]
+                attn.ref_count = ref_count
+
     def set_motion_mode(self, mode: RefMode, config: RefConfig = None):
         model = self.model
-        input_modules = list(filter(is_named_module_transformer_block, model.input_blocks.named_modules()))
-        output_modules = list(filter(is_named_module_transformer_block, model.output_blocks.named_modules()))
+        input_modules = list(
+            filter(is_named_module_transformer_block, model.input_blocks.named_modules()))
+        output_modules = list(
+            filter(is_named_module_transformer_block, model.output_blocks.named_modules()))
 
         for _, module in input_modules + output_modules:
             for i in range(len(module.attention_blocks)):
@@ -36,6 +50,7 @@ class RefController:
                             attn.v_mode = True
                         if setting.normal_mode:
                             attn.normal_mode = True
+                            attn.ref_norm_fidelity = setting.normal_fidelity
             for i, (_, module) in enumerate(output_modules):
                 for attn_idx in range(len(module.attention_blocks)):
                     attn = module.attention_blocks[attn_idx]
@@ -49,11 +64,14 @@ class RefController:
                             attn.v_mode = True
                         if setting.normal_mode:
                             attn.normal_mode = True
+                            attn.ref_norm_fidelity = setting.normal_fidelity
 
     def clear_modules(self):
         model = self.model
-        input_modules = list(filter(is_named_module_transformer_block, model.input_blocks.named_modules()))
-        output_modules = list(filter(is_named_module_transformer_block, model.output_blocks.named_modules()))
+        input_modules = list(
+            filter(is_named_module_transformer_block, model.input_blocks.named_modules()))
+        output_modules = list(
+            filter(is_named_module_transformer_block, model.output_blocks.named_modules()))
 
         for _, module in input_modules + output_modules:
             for i in range(len(module.attention_blocks)):

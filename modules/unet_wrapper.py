@@ -20,12 +20,17 @@ def get_unet_wrapper(cls, ref_controller: RefController):
             sub_idxs = ad_params.get('sub_idxs', None)
             n_conds = len(transformer_options['cond_or_uncond'])
             n_frames = len(x) // n_conds
+            ref_count = ad_params['full_length'] // 16
             if sub_idxs is None:
                 sub_idxs = list(range(n_frames))
+                ref_count = 1
 
             ref_latent = ref_config.ref_latents
             if ad_params['full_length'] > len(ref_latent):
                 sub_idxs = list(range(n_frames))
+                ref_count = 1
+
+            ref_controller.sef_ref_count(1)
 
             if len(ref_latent) < n_frames:
                 raise ValueError(
