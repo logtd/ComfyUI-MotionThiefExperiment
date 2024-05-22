@@ -1,6 +1,6 @@
 [project]
 name = "comfyui-motionthiefexperiment"
-description = ""
+description = "experimental node pack to test using reference videos for their motion."
 version = "1.0.0"
 license = "LICENSE"
 
