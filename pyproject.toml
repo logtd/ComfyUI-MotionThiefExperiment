@@ -1,0 +1,14 @@
+[project]
+name = "comfyui-motionthiefexperiment"
+description = "experimental node pack to test using reference videos for their motion."
+version = "1.0.0"
+license = "LICENSE"
+
+[project.urls]
+Repository = "https://github.com/logtd/ComfyUI-MotionThiefExperiment"
+#  Used by Comfy Registry https://comfyregistry.org
+
+[tool.comfy]
+PublisherId = "logtd"
+DisplayName = "ComfyUI-MotionThiefExperiment"
+Icon = ""
